@@ -4,7 +4,16 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/fathlon/household_grant/db"
 )
+
+var datastore *db.Datastore
+
+// Init will initialize a new datastore
+func Init() {
+	datastore = db.NewDatastore()
+}
 
 func main() {
 	http.HandleFunc("/", Index)
