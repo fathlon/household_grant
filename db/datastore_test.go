@@ -4,27 +4,28 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/fathlon/household_grant/model"
 	"github.com/stretchr/testify/require"
 )
 
 func TestAddHousehold(t *testing.T) {
 	testCases := []struct {
 		givenDatastore *Datastore
-		givenHousehold Household
+		givenHousehold model.Household
 		expectedError  error
 	}{
 		{
 			givenDatastore: &Datastore{
-				store: map[int]Household{
+				store: map[int]model.Household{
 					1: {ID: 1, Type: "HDB"},
 				},
 			},
-			givenHousehold: Household{Type: "CONDO"},
+			givenHousehold: model.Household{Type: "CONDO"},
 			expectedError:  ErrDuplicateID,
 		},
 		{
 			givenDatastore: NewDatastore(),
-			givenHousehold: Household{Type: "CONDO"},
+			givenHousehold: model.Household{Type: "CONDO"},
 			expectedError:  nil,
 		},
 	}

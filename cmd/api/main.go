@@ -1,14 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/fathlon/household_grant/cmd/api/handler"
 	"github.com/fathlon/household_grant/db"
 )
 
-var datastore *db.Datastore
+var (
+	datastore *db.Datastore
+
+	port = 8080
+)
 
 // Init will initialize a new datastore
 func Init() {
@@ -16,12 +21,8 @@ func Init() {
 }
 
 func main() {
-	http.HandleFunc("/", Index)
+	http.HandleFunc("/", handler.Index)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
-// Index is the default index page
-func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Index")
+	log.Println("Starting server")
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), nil))
 }

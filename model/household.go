@@ -1,4 +1,4 @@
-package db
+package model
 
 // Household is the struct representation of a Household record
 type Household struct {

@@ -1,24 +1,26 @@
 package db
 
+import "github.com/fathlon/household_grant/model"
+
 var index int
 
 // Datastore is the struct represetation of a persistent datastore
 type Datastore struct {
-	store map[int]Household
+	store map[int]model.Household
 }
 
 // NewDatastore is the constructor for initializing and creating a new datastore
 func NewDatastore() *Datastore {
 	return &Datastore{
-		store: make(map[int]Household),
+		store: make(map[int]model.Household),
 	}
 }
 
 // AddHousehold takes a Housedhold object and saves it into the datastore
-func (d *Datastore) AddHousehold(h Household) (Household, error) {
+func (d *Datastore) AddHousehold(h model.Household) (model.Household, error) {
 	currentIdx := nextIndex()
 	if _, exist := d.store[currentIdx]; exist {
-		return Household{}, ErrDuplicateID
+		return model.Household{}, ErrDuplicateID
 	}
 
 	h.ID = currentIdx
