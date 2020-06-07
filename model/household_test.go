@@ -24,7 +24,7 @@ func TestValidateHousehold(t *testing.T) {
 			t.Parallel()
 
 			// When:
-			result := tc.given.ValidateHousehold()
+			result := tc.given.Validate()
 
 			// Then:
 			require.Equal(t, tc.expected, result)
