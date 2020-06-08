@@ -21,32 +21,6 @@ func NewDatastore() *Datastore {
 	}
 }
 
-// AddHousehold takes a Housedhold object and saves it into the datastore
-func (d *Datastore) AddHousehold(h model.Household) (model.Household, error) {
-	currentIdx := nextHseIndex()
-	if _, exist := d.households[currentIdx]; exist {
-		return model.Household{}, ErrHouseholdDuplicateID
-	}
-
-	h.ID = currentIdx
-	d.households[currentIdx] = h
-
-	return h, nil
-}
-
-// AddFamilyMember takes a FamilyMember object and saves it into the datastore
-func (d *Datastore) AddFamilyMember(f model.FamilyMember) (model.FamilyMember, error) {
-	currentIdx := nextMemIndex()
-	if _, exist := d.members[currentIdx]; exist {
-		return model.FamilyMember{}, ErrFamilyMemberDuplicateID
-	}
-
-	f.ID = currentIdx
-	d.members[currentIdx] = f
-
-	return f, nil
-}
-
 // nextHseIndex returns the next index value
 func nextHseIndex() int {
 	hseIndex++
