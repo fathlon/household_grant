@@ -11,8 +11,8 @@ func TestNewDatastore(t *testing.T) {
 	result := NewDatastore()
 
 	// Then:
-	require.NotNil(t, result.households)
-	require.NotNil(t, result.members)
+	require.NotNil(t, result.Households)
+	require.NotNil(t, result.Members)
 }
 
 func TestNextHseIndex(t *testing.T) {

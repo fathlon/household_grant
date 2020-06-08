@@ -12,5 +12,30 @@ func Create(ds *db.Datastore, h model.Household) (model.Household, error) {
 		return model.Household{}, service.NewValidationError(err)
 	}
 
-	return ds.AddHousehold(h)
+	return ds.CreateHousehold(h)
+}
+
+// AddMember adds a family member to the household of the given ID
+func AddMember(ds *db.Datastore, householdID int, f model.FamilyMember) (model.FamilyMember, error) {
+	if err := f.Validate(); err != nil {
+		return model.FamilyMember{}, service.NewValidationError(err)
+	}
+
+	h, err := ds.RetrieveHousehold(householdID)
+	if err != nil {
+		return model.FamilyMember{}, service.NewValidationError(err)
+	}
+
+	if f.ID == 0 {
+		f, err = ds.CreateFamilyMember(f)
+		if err != nil {
+			return model.FamilyMember{}, service.NewValidationError(err)
+		}
+	}
+
+	h.AddMember(f)
+	// save updated household back into DB
+	ds.UpdateHousehold(h)
+
+	return f, nil
 }

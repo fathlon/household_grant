@@ -1,22 +1,23 @@
 package db
 
 import (
-	"strconv"
 	"testing"
 
 	"github.com/fathlon/household_grant/model"
 	"github.com/stretchr/testify/require"
 )
 
-func TestAddHousehold(t *testing.T) {
+func TestCreateHousehold(t *testing.T) {
 	testCases := []struct {
+		msg            string
 		givenDatastore *Datastore
 		givenHousehold model.Household
 		expectedError  error
 	}{
 		{
+			msg: "FAILURE_CASE",
 			givenDatastore: &Datastore{
-				households: map[int]model.Household{
+				Households: map[int]model.Household{
 					1: {ID: 1, Type: "HDB"},
 				},
 			},
@@ -24,18 +25,24 @@ func TestAddHousehold(t *testing.T) {
 			expectedError:  ErrHouseholdDuplicateID,
 		},
 		{
+			msg:            "SUCCESS_CASE",
 			givenDatastore: NewDatastore(),
 			givenHousehold: model.Household{Type: "CONDO"},
 			expectedError:  nil,
 		},
 	}
 
-	for i, tc := range testCases {
+	for _, tc := range testCases {
 		tc := tc
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
+		t.Run(tc.msg, func(t *testing.T) {
 			t.Parallel()
+			// Given:
+			oldIndex := HseIndex
+			HseIndex = 0
+			defer func() { HseIndex = oldIndex }()
+
 			// When:
-			result, err := tc.givenDatastore.AddHousehold(tc.givenHousehold)
+			result, err := tc.givenDatastore.CreateHousehold(tc.givenHousehold)
 
 			// Then:
 			require.Equal(t, tc.expectedError, err)
@@ -49,13 +56,15 @@ func TestAddHousehold(t *testing.T) {
 
 func TestRetrieveHousehold(t *testing.T) {
 	testCases := []struct {
+		msg            string
 		givenDatastore *Datastore
 		givenID        int
 		expectedError  error
 	}{
 		{
+			msg: "SUCCESS_CASE",
 			givenDatastore: &Datastore{
-				households: map[int]model.Household{
+				Households: map[int]model.Household{
 					1: {ID: 1, Type: "HDB"},
 					2: {ID: 2, Type: "Landed"},
 				},
@@ -64,15 +73,16 @@ func TestRetrieveHousehold(t *testing.T) {
 			expectedError: nil,
 		},
 		{
+			msg:            "FAILURE_CASE",
 			givenDatastore: NewDatastore(),
 			givenID:        1,
 			expectedError:  ErrHouseholdNotFound,
 		},
 	}
 
-	for i, tc := range testCases {
+	for _, tc := range testCases {
 		tc := tc
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
+		t.Run(tc.msg, func(t *testing.T) {
 			t.Parallel()
 			// When:
 			result, err := tc.givenDatastore.RetrieveHousehold(tc.givenID)
@@ -82,6 +92,78 @@ func TestRetrieveHousehold(t *testing.T) {
 
 			if tc.expectedError == nil {
 				require.Equal(t, tc.givenID, result.ID)
+			}
+		})
+	}
+}
+
+func TestUpdateHousehold(t *testing.T) {
+	testCases := []struct {
+		msg            string
+		givenDatastore *Datastore
+		givenHousehold model.Household
+		expectedError  error
+	}{
+		{
+			msg: "SUCCESS_CASE",
+			givenDatastore: &Datastore{
+				Households: map[int]model.Household{
+					1: {
+						ID:      1,
+						Type:    "HDB",
+						Members: []model.FamilyMember{},
+					},
+					2: {
+						ID:   2,
+						Type: "Landed",
+						Members: []model.FamilyMember{
+							{ID: 1, Name: "Jacky"},
+						},
+					},
+				},
+			},
+			givenHousehold: model.Household{
+				ID:   2,
+				Type: "Landed",
+				Members: []model.FamilyMember{
+					{ID: 1, Name: "Jacky"},
+					{ID: 2, Name: "Jeanny"},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			msg: "FAILURE_CASE",
+			givenDatastore: &Datastore{
+				Households: map[int]model.Household{
+					1: {
+						ID:      1,
+						Type:    "HDB",
+						Members: []model.FamilyMember{},
+					},
+				},
+			},
+			givenHousehold: model.Household{
+				Type:    "Condominium",
+				Members: []model.FamilyMember{},
+			},
+			expectedError: ErrHouseholdInvalid,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			t.Parallel()
+			// When:
+			err := tc.givenDatastore.UpdateHousehold(tc.givenHousehold)
+
+			// Then:
+			require.Equal(t, tc.expectedError, err)
+
+			actual := tc.givenDatastore.Households[tc.givenHousehold.ID]
+			if tc.expectedError == nil {
+				require.EqualValues(t, tc.givenHousehold, actual)
 			}
 		})
 	}
