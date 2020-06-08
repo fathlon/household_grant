@@ -4,6 +4,7 @@ import "time"
 
 // FamilyMember is the struct representation of a FamilyMember record
 type FamilyMember struct {
+	ID             int       `json:"id"`
 	Name           string    `json:"name"`
 	Gender         string    `json:"gender"`
 	MaritalStatus  string    `json:"marital_status"`
