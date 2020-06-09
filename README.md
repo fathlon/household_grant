@@ -6,7 +6,12 @@ The below documented are the various assumptions made while implementing, which 
 
 - Each HTTP request is fired sequentially
 - Each family member has to be added individually to the household, including married couple with spouse. Having `Spouse` field filled does **NOT** naturally mean they live in the same household
-- When adding family member to household, every member without a non-zero value in `ID` field (primary key) will be treated as a new member regardless.
+- When adding family member to household,
+  - every member without a non-zero value in `ID` field (primary key) will be treated as a new member regardless.
+  - if the member with a non-zero value in `ID` already exists in the household, the current member data will **NOT** overwrite the existing member.
+  - this will not be used as a way to update existing member's details
+- Format of `DOB` field in family memeber follows RFC3339 standard.
+- `Spouse` field in family member stores the **Name** of the spouse
 
 ## Accepted values for Household and FamilyMember
 

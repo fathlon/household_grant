@@ -24,8 +24,8 @@ func DBServer() *db.Datastore {
 
 // StartServer will define http routes and start server on given port
 func StartServer(port int) {
-	Routes()
+	r := Routes()
 
 	log.Printf("Starting server at port %v\n", port)
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), nil))
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(port), r))
 }
