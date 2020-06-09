@@ -26,16 +26,20 @@ func TestCreate(t *testing.T) {
 		{
 			msg:            "success",
 			givenDatastore: db.NewDatastore(),
-			givenHousehold: model.Household{Type: "Landed"},
-			expectedError:  nil,
+			givenHousehold: model.Household{
+				Type: "Landed",
+				Members: []model.FamilyMember{
+					{ID: 1, Name: "Sleeping Beauty"},
+					{ID: 2, Name: "Snow White"},
+				},
+			},
+			expectedError: nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.msg, func(t *testing.T) {
-			t.Parallel()
-
 			// When:
 			result, err := Create(tc.givenDatastore, tc.givenHousehold)
 
@@ -45,6 +49,7 @@ func TestCreate(t *testing.T) {
 			if tc.expectedError == nil {
 				require.NotZero(t, result.ID)
 				require.Equal(t, tc.givenHousehold.Type, result.Type)
+				require.Empty(t, result.Members)
 			}
 		})
 	}
@@ -105,7 +110,6 @@ func TestAddMember(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.msg, func(t *testing.T) {
-			t.Parallel()
 			// When:
 			result, err := AddMember(tc.givenDatastore, tc.givenHouseholdID, tc.givenMember)
 
@@ -182,7 +186,6 @@ func TestAddMember_Error(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.msg, func(t *testing.T) {
-			t.Parallel()
 			// Given:
 			oldIndex := db.MemIndex
 			db.MemIndex = 0
@@ -239,7 +242,6 @@ func TestRetrieveAll(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.msg, func(t *testing.T) {
-			t.Parallel()
 			// When:
 			result := RetrieveAll(tc.givenDatastore)
 

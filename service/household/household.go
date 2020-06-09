@@ -12,6 +12,9 @@ func Create(ds *db.Datastore, h model.Household) (model.Household, error) {
 		return model.Household{}, service.NewValidationError(err)
 	}
 
+	// clear out family member to prevent saving of members through creation
+	h.Members = []model.FamilyMember{}
+
 	return ds.CreateHousehold(h)
 }
 

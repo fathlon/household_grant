@@ -5,6 +5,7 @@
 The below documented are the various assumptions made while implementing, which directly affects the behaviour and error handling of the system.
 
 - Each HTTP request is fired sequentially
+- Saving of family members during household creation is **NOT** allowed.
 - Each family member has to be added individually to the household, including married couple with spouse. Having `Spouse` field filled does **NOT** naturally mean they live in the same household
 - When adding family member to household,
   - every member without a non-zero value in `ID` field (primary key) will be treated as a new member regardless.
