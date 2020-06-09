@@ -82,3 +82,18 @@ func AddFamilyMember(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(data)
 }
+
+// RetrieveHouseholds returns all households in the db
+func RetrieveHouseholds(w http.ResponseWriter, r *http.Request) {
+	result := household.RetrieveAll(DBServer())
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error parsing json: %v", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}

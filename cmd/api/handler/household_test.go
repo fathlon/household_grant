@@ -23,7 +23,7 @@ func TestCreateHousehold(t *testing.T) {
 	require.NoError(t, err)
 
 	w := httptest.NewRecorder()
-	r, err := http.NewRequest(http.MethodPost, "/household/create", bytes.NewBuffer(reqData))
+	r, err := http.NewRequest(http.MethodPost, "/households", bytes.NewBuffer(reqData))
 	require.NoError(t, err)
 
 	router := mux.NewRouter()
@@ -33,8 +33,8 @@ func TestCreateHousehold(t *testing.T) {
 	router.ServeHTTP(w, r)
 
 	// Then:
-	require.Equal(t, "application/json", w.Header().Get("Content-Type"))
 	require.Equal(t, http.StatusCreated, w.Code)
+	require.Equal(t, "application/json", w.Header().Get("Content-Type"))
 
 	var result model.Household
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &result))
@@ -67,8 +67,6 @@ func TestCreateHousehold_Error(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.msg, func(t *testing.T) {
-			t.Parallel()
-
 			// Given:
 			w := httptest.NewRecorder()
 			r, err := http.NewRequest(http.MethodPost, "/households", bytes.NewBufferString(tc.givenReqStr))
@@ -142,8 +140,6 @@ func TestAddFamilyMember(t *testing.T) {
 	for i, tc := range testCases {
 		tc := tc
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			t.Parallel()
-
 			// Given:
 			oldDs := datastore
 			datastore = tc.givenDatastore
@@ -163,8 +159,8 @@ func TestAddFamilyMember(t *testing.T) {
 			router.ServeHTTP(w, r)
 
 			// Then:
-			require.Equal(t, "application/json", w.Header().Get("Content-Type"))
 			require.Equal(t, http.StatusOK, w.Code)
+			require.Equal(t, "application/json", w.Header().Get("Content-Type"))
 
 			var result model.FamilyMember
 			require.NoError(t, json.Unmarshal(w.Body.Bytes(), &result))
@@ -215,8 +211,6 @@ func TestAddFamilyMember_Error(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.msg, func(t *testing.T) {
-			t.Parallel()
-
 			// Given:
 			w := httptest.NewRecorder()
 			r, err := http.NewRequest(http.MethodPost, fmt.Sprintf("/households/%v/familymember", tc.givenHouseholdID), bytes.NewBufferString(tc.givenReqStr))
@@ -231,6 +225,75 @@ func TestAddFamilyMember_Error(t *testing.T) {
 			// Then:
 			require.Equal(t, tc.expectedCode, w.Code)
 			require.Contains(t, w.Body.String(), tc.expectedMsg)
+		})
+	}
+}
+
+func TestRetrieveHouseholds(t *testing.T) {
+	h1 := model.Household{
+		ID:   1,
+		Type: "Landed",
+		Members: []model.FamilyMember{
+			{ID: 1, Name: "Jack"},
+			{ID: 2, Name: "Beanstalk"},
+		},
+	}
+	h2 := model.Household{
+		ID:   2,
+		Type: "HDB",
+		Members: []model.FamilyMember{
+			{ID: 1, Name: "Cinderella"},
+		},
+	}
+
+	testCases := []struct {
+		msg            string
+		givenDatastore *db.Datastore
+		expected       []model.Household
+	}{
+		{
+			msg:            "empty",
+			givenDatastore: db.NewDatastore(),
+			expected:       []model.Household{},
+		},
+		{
+			msg: "not_empty",
+			givenDatastore: &db.Datastore{
+				Households: map[int]model.Household{
+					1: h1,
+					2: h2,
+				},
+			},
+			expected: []model.Household{h1, h2},
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			// Given:
+			oldDs := datastore
+			datastore = tc.givenDatastore
+			defer func() { datastore = oldDs }()
+
+			w := httptest.NewRecorder()
+			r, err := http.NewRequest(http.MethodGet, "/households", nil)
+			require.NoError(t, err)
+
+			router := mux.NewRouter()
+
+			// When:
+			router.HandleFunc("/households", RetrieveHouseholds)
+			router.ServeHTTP(w, r)
+
+			// Then:
+			require.Equal(t, http.StatusOK, w.Code)
+			require.Equal(t, "application/json", w.Header().Get("Content-Type"))
+
+			var result []model.Household
+			require.NoError(t, json.Unmarshal(w.Body.Bytes(), &result))
+			require.Equal(t, len(tc.expected), len(result))
+			require.ElementsMatch(t, tc.expected, result)
 		})
 	}
 }

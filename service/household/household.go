@@ -39,3 +39,8 @@ func AddMember(ds *db.Datastore, householdID int, f model.FamilyMember) (model.F
 
 	return f, nil
 }
+
+// RetrieveAll returns all households in the db
+func RetrieveAll(ds *db.Datastore) []model.Household {
+	return ds.RetrieveHouseholds()
+}

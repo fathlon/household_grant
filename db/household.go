@@ -25,6 +25,15 @@ func (d *Datastore) RetrieveHousehold(id int) (model.Household, error) {
 	return result, nil
 }
 
+// RetrieveHouseholds retrieves all the households in the db
+func (d *Datastore) RetrieveHouseholds() []model.Household {
+	result := make([]model.Household, 0, len(d.Households))
+	for _, h := range d.Households {
+		result = append(result, h)
+	}
+	return result
+}
+
 // UpdateHousehold updates the given household into the datastore
 func (d *Datastore) UpdateHousehold(h model.Household) error {
 	if h.ID == 0 {

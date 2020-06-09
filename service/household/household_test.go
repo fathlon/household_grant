@@ -18,13 +18,13 @@ func TestCreate(t *testing.T) {
 		expectedError  error
 	}{
 		{
-			msg:            "FAILURE_CASE",
+			msg:            "failure",
 			givenDatastore: db.NewDatastore(),
 			givenHousehold: model.Household{},
 			expectedError:  service.NewValidationError(model.ErrHouseholdTypeInvalid),
 		},
 		{
-			msg:            "SUCCESS_CASE",
+			msg:            "success",
 			givenDatastore: db.NewDatastore(),
 			givenHousehold: model.Household{Type: "Landed"},
 			expectedError:  nil,
@@ -57,7 +57,7 @@ func TestAddMember(t *testing.T) {
 		givenMember      model.FamilyMember
 	}{
 		{
-			msg: "MEMBER_WITH_ID",
+			msg: "member_with_id",
 			givenDatastore: &db.Datastore{
 				Households: map[int]model.Household{
 					1: {ID: 1, Type: "HDB"},
@@ -84,7 +84,7 @@ func TestAddMember(t *testing.T) {
 			},
 		},
 		{
-			msg: "MEMBER_WITHOUT_ID",
+			msg: "member_without_id",
 			givenDatastore: &db.Datastore{
 				Households: map[int]model.Household{
 					1: {ID: 1, Type: "HDB"},
@@ -131,14 +131,14 @@ func TestAddMember_Error(t *testing.T) {
 		expectedError    *service.ValidationError
 	}{
 		{
-			msg:              "INVALID_MEMBER",
+			msg:              "invalid_member",
 			givenDatastore:   db.NewDatastore(),
 			givenHouseholdID: 1,
 			givenMember:      model.FamilyMember{},
 			expectedError:    service.NewValidationError(model.ErrFamilyMemberNameInvalid),
 		},
 		{
-			msg:              "INVALID_HOUSEHOLD",
+			msg:              "invalid_household",
 			givenDatastore:   db.NewDatastore(),
 			givenHouseholdID: 1,
 			givenMember: model.FamilyMember{
@@ -151,20 +151,7 @@ func TestAddMember_Error(t *testing.T) {
 			expectedError: service.NewValidationError(db.ErrHouseholdNotFound),
 		},
 		{
-			msg:              "INVALID_HOUSEHOLD",
-			givenDatastore:   db.NewDatastore(),
-			givenHouseholdID: 1,
-			givenMember: model.FamilyMember{
-				Name:           "Jackie",
-				Gender:         "M",
-				OccupationType: "Unemployed",
-				MaritalStatus:  "Married",
-				DOB:            time.Now(),
-			},
-			expectedError: service.NewValidationError(db.ErrHouseholdNotFound),
-		},
-		{
-			msg: "DUPLICATE_MEMBER_ID",
+			msg: "duplicate_member_id",
 			givenDatastore: &db.Datastore{
 				Households: map[int]model.Household{
 					1: {ID: 1, Type: "HDB"},
@@ -206,6 +193,59 @@ func TestAddMember_Error(t *testing.T) {
 
 			// Then:
 			require.Equal(t, tc.expectedError, err)
+		})
+	}
+}
+
+func TestRetrieveAll(t *testing.T) {
+	h1 := model.Household{
+		ID:   1,
+		Type: "Landed",
+		Members: []model.FamilyMember{
+			{ID: 1, Name: "Jack"},
+			{ID: 2, Name: "Beanstalk"},
+		},
+	}
+	h2 := model.Household{
+		ID:   2,
+		Type: "HDB",
+		Members: []model.FamilyMember{
+			{ID: 1, Name: "Cinderella"},
+		},
+	}
+
+	testCases := []struct {
+		msg            string
+		givenDatastore *db.Datastore
+		expected       []model.Household
+	}{
+		{
+			msg:            "empty",
+			givenDatastore: db.NewDatastore(),
+			expected:       []model.Household{},
+		},
+		{
+			msg: "not_empty",
+			givenDatastore: &db.Datastore{
+				Households: map[int]model.Household{
+					1: h1,
+					2: h2,
+				},
+			},
+			expected: []model.Household{h1, h2},
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			t.Parallel()
+			// When:
+			result := RetrieveAll(tc.givenDatastore)
+
+			// Then:
+			require.Equal(t, len(tc.expected), len(result))
+			require.ElementsMatch(t, tc.expected, result)
 		})
 	}
 }
