@@ -251,3 +251,62 @@ func TestRetrieveAll(t *testing.T) {
 		})
 	}
 }
+
+func TestRetrieve(t *testing.T) {
+	h1 := model.Household{
+		ID:   1,
+		Type: "Landed",
+		Members: []model.FamilyMember{
+			{ID: 1, Name: "Jack"},
+			{ID: 2, Name: "Beanstalk"},
+		},
+	}
+	h2 := model.Household{
+		ID:   2,
+		Type: "HDB",
+		Members: []model.FamilyMember{
+			{ID: 1, Name: "Cinderella"},
+		},
+	}
+
+	ds := db.Datastore{
+		Households: map[int]model.Household{
+			1: h1,
+			2: h2,
+		},
+	}
+
+	testCases := []struct {
+		msg               string
+		givenHouseholdID  int
+		expectedError     error
+		expectedHousehold model.Household
+	}{
+		{
+			msg:               "not_found",
+			givenHouseholdID:  5,
+			expectedError:     service.NewValidationError(db.ErrHouseholdNotFound),
+			expectedHousehold: model.Household{},
+		},
+		{
+			msg:               "found",
+			givenHouseholdID:  2,
+			expectedHousehold: h2,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			// When:
+			result, err := Retrieve(&ds, tc.givenHouseholdID)
+
+			// Then:
+			require.Equal(t, tc.expectedError, err)
+
+			if tc.expectedError == nil {
+				require.EqualValues(t, tc.expectedHousehold, result)
+			}
+		})
+	}
+}

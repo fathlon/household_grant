@@ -47,3 +47,13 @@ func AddMember(ds *db.Datastore, householdID int, f model.FamilyMember) (model.F
 func RetrieveAll(ds *db.Datastore) []model.Household {
 	return ds.RetrieveHouseholds()
 }
+
+// Retrieve returns the household of the given id
+func Retrieve(ds *db.Datastore, householdID int) (model.Household, error) {
+	result, err := ds.RetrieveHousehold(householdID)
+	if err != nil {
+		return model.Household{}, service.NewValidationError(err)
+	}
+
+	return result, nil
+}
