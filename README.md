@@ -13,6 +13,9 @@ The below documented are the various assumptions made while implementing, which 
   - this will not be used as a way to update existing member's details
 - Format of `DOB` field in family memeber follows RFC3339 standard.
 - `Spouse` field in family member stores the **Name** of the spouse
+- All comparison are **case-sensitive**.
+- Search without any valid key and value will return empty result.
+- Search with duplicate key, only the first value will be taken.
 
 ## Accepted values for Household and FamilyMember
 
@@ -71,3 +74,27 @@ The accepted values are **case-sensitive**
 #### Show Household
 
 - `GET` to `/households/{id}`
+
+#### Search
+
+- `GET` to `/search`
+
+  List of available search key(s)
+
+  - household_income_gt
+  - household_income_lt
+  - household_income
+  - household_size_gt
+  - household_size_lt
+  - household_size
+  - has_couple
+  - has_children
+  - annual_income_gt
+  - annual_income_lt
+  - annual_income
+  - age_gt
+  - age_lt
+  - age
+  - ...
+
+  Refer to `model/search_operation.go` for a list of all available search key(s)
