@@ -27,3 +27,47 @@ The accepted values are **case-sensitive**
 - Gender: `M`, `F`
 - OccupationType: `Unemployed`, `Student`, `Employed`
 - MaritalStatus: `Single`, `Married`
+
+## Local Setup
+
+- In an environment with golang v1.13 installed, execute `go run cmd/api/main.go` from the root folder
+- Access the server at `http://localhost:8080`
+
+### Routes
+
+#### Create Household
+
+- `POST` to `/households`
+
+  Sample Request
+
+  ```json
+  {
+    "type": "HDB"
+  }
+  ```
+
+#### Add FamilyMember to Household
+
+- `POST` to `/households/{id}/familymember`
+
+  Sample Request
+
+  ```json
+  {
+    "name": "WOMAN",
+    "gender": "M",
+    "spouse": "MAN",
+    "occupation_type": "Employed",
+    "marital_status": "Married",
+    "dob": "1990-06-09T09:05:18+08:00"
+  }
+  ```
+
+#### List all Households
+
+- `GET` to `/households`
+
+#### Show Household
+
+- `GET` to `/households/{id}`
