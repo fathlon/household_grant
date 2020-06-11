@@ -88,20 +88,31 @@ The accepted values are **case-sensitive**
 
   List of available search key(s)
 
-  - household_income_gt
-  - household_income_lt
-  - household_income
-  - household_size_gt
-  - household_size_lt
-  - household_size
-  - has_couple
-  - has_children_by_age
-  - annual_income_gt
-  - annual_income_lt
-  - annual_income
-  - age_gt
-  - age_lt
-  - age
+  - household_income_gt (int)
+  - household_income_lt (int)
+  - household_income (int)
+  - household_size_gt (int)
+  - household_size_lt (int)
+  - household_size (int)
+  - has_couple (bool)
+  - has_children_by_age (int)
+  - annual_income_gt (int)
+  - annual_income_lt (int)
+  - annual_income (int)
+  - age_gt (int)
+  - age_lt (int)
+  - age (int)
+  - whole_household (bool)
   - ...
 
   Refer to `model/search_operation.go` for a list of all available search key(s)
+
+  Sample Request
+
+  ```http
+  /search?annual_income_lt=100000&whole_household=true
+
+  /search?has_couple=true&has_children_by_age=18
+
+  /search?age_gt=50
+  ```
