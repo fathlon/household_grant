@@ -5,6 +5,8 @@ import "errors"
 var (
 	// ErrHouseholdTypeInvalid occurs when the household type is not within accepted options
 	ErrHouseholdTypeInvalid = errors.New("invalid household type")
+	// ErrHouseholdFamilyMemberNotExists occurs when the family member does not exists in the household
+	ErrHouseholdFamilyMemberNotExists = errors.New("family member does not exists in household")
 
 	// ErrFamilyMemberNameInvalid occurs when the name is invalid
 	ErrFamilyMemberNameInvalid = errors.New("invalid name")

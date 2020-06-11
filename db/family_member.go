@@ -19,6 +19,18 @@ func (d *Datastore) CreateFamilyMember(f model.FamilyMember) (model.FamilyMember
 	return f, nil
 }
 
+// DeleteFamilyMember deletes the given family member by id from db
+func (d *Datastore) DeleteFamilyMember(id int) (model.FamilyMember, error) {
+	result, ok := d.Members[id]
+	if !ok {
+		return model.FamilyMember{}, ErrFamilyMemberNotFound
+	}
+
+	delete(d.Members, id)
+
+	return result, nil
+}
+
 func nameExists(name string, members map[int]model.FamilyMember) bool {
 	for _, f := range members {
 		if f.Name == name {

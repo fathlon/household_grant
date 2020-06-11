@@ -120,3 +120,7 @@ The accepted values are **case-sensitive**
 #### Delete Household
 
 - `DELETE` to `/households/{id}`
+
+#### Delete Family Member from Household
+
+- `DELETE` to `/households/{id}/familymember/{fid}`

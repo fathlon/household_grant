@@ -98,3 +98,61 @@ func TestCreateFamilyMember(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteFamilyMember(t *testing.T) {
+	fm1 := model.FamilyMember{
+		ID:   1,
+		Name: "Jack",
+	}
+	fm2 := model.FamilyMember{
+		ID:   2,
+		Name: "Jill",
+	}
+
+	testCases := []struct {
+		msg            string
+		givenDatastore *Datastore
+		givenMemberID  int
+		expectedError  error
+		expected       model.FamilyMember
+	}{
+		{
+			msg:            "not_found",
+			givenDatastore: NewDatastore(),
+			givenMemberID:  1,
+			expectedError:  ErrFamilyMemberNotFound,
+			expected:       model.FamilyMember{},
+		},
+		{
+			msg: "success",
+			givenDatastore: &Datastore{
+				Members: map[int]model.FamilyMember{
+					1: fm1,
+					2: fm2,
+				},
+			},
+			givenMemberID: fm1.ID,
+			expectedError: nil,
+			expected:      fm1,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			t.Parallel()
+			// When:
+			result, err := tc.givenDatastore.DeleteFamilyMember(tc.givenMemberID)
+
+			// Then:
+			require.Equal(t, tc.expectedError, err)
+
+			if tc.expectedError == nil {
+				require.EqualValues(t, tc.expected, result)
+
+				_, exists := tc.givenDatastore.Members[tc.givenMemberID]
+				require.False(t, exists)
+			}
+		})
+	}
+}

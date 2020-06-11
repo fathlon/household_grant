@@ -372,3 +372,116 @@ func TestDelete(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteMember(t *testing.T) {
+	mb1 := model.FamilyMember{
+		ID:   1,
+		Name: "Jackie",
+	}
+
+	testCases := []struct {
+		msg              string
+		givenDatastore   *db.Datastore
+		givenHouseholdID int
+		givenMemberID    int
+		expected         model.FamilyMember
+	}{
+		{
+			msg: "success",
+			givenDatastore: &db.Datastore{
+				Households: map[int]model.Household{
+					1: {
+						ID:      1,
+						Type:    "HDB",
+						Members: []model.FamilyMember{mb1},
+					},
+				},
+				Members: map[int]model.FamilyMember{
+					1: mb1,
+				},
+			},
+			givenHouseholdID: 1,
+			givenMemberID:    1,
+			expected:         mb1,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			// When:
+			result, err := DeleteMember(tc.givenDatastore, tc.givenHouseholdID, tc.givenMemberID)
+
+			// Then:
+			require.NoError(t, err)
+			require.EqualValues(t, tc.expected, result)
+		})
+	}
+}
+
+func TestDeleteMember_Error(t *testing.T) {
+	testCases := []struct {
+		msg              string
+		givenDatastore   *db.Datastore
+		givenHouseholdID int
+		givenMemberID    int
+		expectedError    *service.ValidationError
+	}{
+		{
+			msg:              "household_not_found",
+			givenDatastore:   db.NewDatastore(),
+			givenHouseholdID: 1,
+			givenMemberID:    1,
+			expectedError:    service.NewValidationError(db.ErrHouseholdNotFound),
+		},
+		{
+			msg: "member_not_exists_in_household",
+			givenDatastore: &db.Datastore{
+				Households: map[int]model.Household{
+					1: {ID: 1, Type: "HDB"},
+				},
+				Members: map[int]model.FamilyMember{
+					1: {
+						ID:   1,
+						Name: "Jackie",
+					},
+				},
+			},
+			givenHouseholdID: 1,
+			givenMemberID:    1,
+			expectedError:    service.NewValidationError(model.ErrHouseholdFamilyMemberNotExists),
+		},
+		{
+			msg: "member_not_exists_master_map",
+			givenDatastore: &db.Datastore{
+				Households: map[int]model.Household{
+					1: {
+						ID:   1,
+						Type: "HDB",
+						Members: []model.FamilyMember{
+							{
+								ID:   1,
+								Name: "Jackie",
+							},
+						},
+					},
+				},
+				Members: map[int]model.FamilyMember{},
+			},
+			givenHouseholdID: 1,
+			givenMemberID:    1,
+			expectedError:    service.NewValidationError(db.ErrFamilyMemberNotFound),
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			// When:
+			_, err := DeleteMember(tc.givenDatastore, tc.givenHouseholdID, tc.givenMemberID)
+
+			// Then:
+			require.Equal(t, tc.expectedError, err)
+		})
+	}
+}

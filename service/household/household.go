@@ -67,3 +67,26 @@ func Delete(ds *db.Datastore, householdID int) (model.Household, error) {
 
 	return result, nil
 }
+
+// DeleteMember deletes the given family member from household by ids and returns the deleted family member
+func DeleteMember(ds *db.Datastore, householdID, memberID int) (model.FamilyMember, error) {
+	h, err := ds.RetrieveHousehold(householdID)
+	if err != nil {
+		return model.FamilyMember{}, service.NewValidationError(err)
+	}
+
+	if !h.MemberExists(memberID) {
+		return model.FamilyMember{}, service.NewValidationError(model.ErrHouseholdFamilyMemberNotExists)
+	}
+
+	h.DeleteMember(memberID)
+	// save updated household back into DB
+	ds.UpdateHousehold(h)
+
+	result, err := ds.DeleteFamilyMember(memberID)
+	if err != nil {
+		return model.FamilyMember{}, service.NewValidationError(err)
+	}
+
+	return result, nil
+}

@@ -32,3 +32,21 @@ func (h *Household) MemberExists(id int) bool {
 	}
 	return false
 }
+
+// DeleteMember deletes a family member by id from household
+func (h *Household) DeleteMember(id int) bool {
+	found := false
+	for i, f := range h.Members {
+		if f.ID == id {
+			h.Members[i] = h.Members[len(h.Members)-1]
+			found = true
+			break
+		}
+	}
+
+	if found {
+		h.Members = h.Members[:len(h.Members)-1]
+	}
+
+	return found
+}

@@ -14,4 +14,6 @@ var (
 	ErrFamilyMemberDuplicateID = errors.New("duplicate family member index")
 	// ErrFamilyMemberDuplicateName occurs when the name is duplicate
 	ErrFamilyMemberDuplicateName = errors.New("duplicate name")
+	// ErrFamilyMemberNotFound occurs when family member not found
+	ErrFamilyMemberNotFound = errors.New("family member not found")
 )

@@ -481,3 +481,114 @@ func TestDeleteHousehold_Error(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteFamilyMember(t *testing.T) {
+	// Prep fixtures:
+	mb1 := model.FamilyMember{ID: 1, Name: "Jack"}
+	mb2 := model.FamilyMember{ID: 2, Name: "Beanstalk"}
+	mb3 := model.FamilyMember{ID: 3, Name: "Cinderella"}
+
+	h1 := model.Household{
+		ID:   1,
+		Type: "Landed",
+		Members: []model.FamilyMember{
+			mb1,
+			mb2,
+		},
+	}
+	h2 := model.Household{
+		ID:   2,
+		Type: "HDB",
+		Members: []model.FamilyMember{
+			mb3,
+		},
+	}
+
+	ds := db.Datastore{
+		Households: map[int]model.Household{
+			1: h1,
+			2: h2,
+		},
+		Members: map[int]model.FamilyMember{
+			1: mb1,
+			2: mb2,
+			3: mb3,
+		},
+	}
+
+	// Given:
+	oldDs := datastore
+	datastore = &ds
+	defer func() { datastore = oldDs }()
+
+	w := httptest.NewRecorder()
+	r, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/households/%v/familymember/%v", h1.ID, mb1.ID), nil)
+	require.NoError(t, err)
+
+	router := mux.NewRouter()
+
+	// When:
+	router.HandleFunc("/households/{id}/familymember/{fmid}", DeleteFamilyMember)
+	router.ServeHTTP(w, r)
+
+	// Then:
+	require.Equal(t, http.StatusOK, w.Code)
+	require.Equal(t, "application/json", w.Header().Get("Content-Type"))
+
+	var result model.FamilyMember
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &result))
+	require.EqualValues(t, mb1, result)
+}
+
+func TestDeleteFamilyMember_Error(t *testing.T) {
+	testCases := []struct {
+		msg              string
+		givenHouseholdID string
+		givenMemberID    string
+		expectedCode     int
+		expectedMsg      string
+	}{
+		{
+			msg:              "invalid_path_variable_id",
+			givenHouseholdID: "one",
+			givenMemberID:    "1",
+			expectedCode:     http.StatusBadRequest,
+			expectedMsg:      "invalid path variable",
+		},
+		{
+			msg:              "invalid_path_variable_fid",
+			givenHouseholdID: "1",
+			givenMemberID:    "one",
+			expectedCode:     http.StatusBadRequest,
+			expectedMsg:      "invalid path variable",
+		},
+		{
+			msg:              "household_not_found",
+			givenHouseholdID: "99",
+			givenMemberID:    "1",
+			expectedCode:     http.StatusBadRequest,
+			expectedMsg:      "household not found",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			t.Parallel()
+			// Given:
+			w := httptest.NewRecorder()
+			r, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/households/%v/familymember/%v", tc.givenHouseholdID, tc.givenMemberID), nil)
+			require.NoError(t, err)
+
+			router := mux.NewRouter()
+
+			// When:
+			router.HandleFunc("/households/{id}/familymember/{fmid}", DeleteFamilyMember)
+			router.ServeHTTP(w, r)
+
+			// Then:
+			require.Equal(t, tc.expectedCode, w.Code)
+			require.Contains(t, w.Body.String(), tc.expectedMsg)
+		})
+	}
+}

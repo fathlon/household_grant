@@ -40,7 +40,7 @@ func TestAddMember(t *testing.T) {
 		expectedCount  int
 	}{
 		{
-			msg: "ADD_EXISTING_MEMBER",
+			msg: "add_existing_member",
 			givenHousehold: Household{
 				Members: []FamilyMember{
 					{ID: 1, Name: "Rachael"},
@@ -51,7 +51,7 @@ func TestAddMember(t *testing.T) {
 			expectedCount: 2,
 		},
 		{
-			msg: "ADD_NEW_MEMBER",
+			msg: "add_new_member",
 			givenHousehold: Household{
 				Members: []FamilyMember{
 					{ID: 1, Name: "Rachael"},
@@ -84,7 +84,7 @@ func TestMemberExists(t *testing.T) {
 		expected       bool
 	}{
 		{
-			msg: "TRUE",
+			msg: "true",
 			givenHousehold: Household{
 				Members: []FamilyMember{
 					{ID: 1, Name: "Rachael"},
@@ -95,7 +95,7 @@ func TestMemberExists(t *testing.T) {
 			expected:      true,
 		},
 		{
-			msg: "FALSE",
+			msg: "false",
 			givenHousehold: Household{
 				Members: []FamilyMember{
 					{ID: 1, Name: "Rachael"},
@@ -112,6 +112,47 @@ func TestMemberExists(t *testing.T) {
 			t.Parallel()
 			// When:
 			result := tc.givenHousehold.MemberExists(tc.givenMemberID)
+
+			// Then:
+			require.Equal(t, tc.expected, result)
+		})
+	}
+}
+
+func TestDeleteMember(t *testing.T) {
+	testCases := []struct {
+		msg            string
+		givenHousehold Household
+		givenMemberID  int
+		expected       bool
+	}{
+		{
+			msg: "success",
+			givenHousehold: Household{
+				Members: []FamilyMember{
+					{ID: 1, Name: "Rachael"},
+					{ID: 2, Name: "Monica"},
+				},
+			},
+			givenMemberID: 2,
+			expected:      true,
+		},
+		{
+			msg: "not_found",
+			givenHousehold: Household{
+				Members: []FamilyMember{},
+			},
+			givenMemberID: 2,
+			expected:      false,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			t.Parallel()
+			// When:
+			result := tc.givenHousehold.DeleteMember(tc.givenMemberID)
 
 			// Then:
 			require.Equal(t, tc.expected, result)

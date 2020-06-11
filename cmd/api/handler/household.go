@@ -151,3 +151,37 @@ func DeleteHousehold(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(data)
 }
+
+// DeleteFamilyMember deletes the given family member from household by ids
+func DeleteFamilyMember(w http.ResponseWriter, r *http.Request) {
+	pathID := mux.Vars(r)["id"]
+	householdID, err := strconv.Atoi(pathID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("invalid path variable: %v", pathID), http.StatusBadRequest)
+		return
+	}
+
+	pathFMID := mux.Vars(r)["fmid"]
+	memberID, err := strconv.Atoi(pathFMID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("invalid path variable: %v", pathFMID), http.StatusBadRequest)
+		return
+	}
+
+	result, err := household.DeleteMember(DBServer(), householdID, memberID)
+	if err != nil {
+		errMsg, errCode := CheckError(err)
+		http.Error(w, errMsg, errCode)
+		return
+	}
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error parsing json: %v", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
