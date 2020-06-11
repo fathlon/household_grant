@@ -4,7 +4,7 @@ package model
 type Household struct {
 	ID      int            `json:"id"`
 	Type    string         `json:"type"`
-	Members []FamilyMember `json:"members"`
+	Members []FamilyMember `json:"members,omitempty"`
 }
 
 // Validate will validate fields of household

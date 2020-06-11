@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -9,11 +11,34 @@ import (
 	"strings"
 
 	"github.com/fathlon/household_grant/model"
+	"github.com/fathlon/household_grant/service/search"
 )
 
 // Search executes search based on the given request params
 func Search(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+	so, err := mapSearchOperation(params)
+	if err != nil {
+		http.Error(w, "invalid search values", http.StatusBadRequest)
+		return
+	}
+
+	result, err := search.Retrieves(DBServer(), so)
+	if err != nil {
+		errMsg, errCode := CheckError(err)
+		http.Error(w, errMsg, errCode)
+		return
+	}
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error parsing json: %v", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Write(data)
 }
 
 // mapSearchOperation takes params (map[string][]string) and maps to SearchOperation struct
@@ -54,6 +79,12 @@ func mapSearchOperation(params url.Values) (model.SearchOperation, error) {
 						return model.SearchOperation{}, errors.New("invalid type of value")
 					}
 					currentField.SetInt(val)
+				case bool:
+					val, err := strconv.ParseBool(currentValStr)
+					if err != nil {
+						return model.SearchOperation{}, errors.New("invalid type of value")
+					}
+					currentField.SetBool(val)
 				case *bool:
 					val, err := strconv.ParseBool(currentValStr)
 					if err != nil {

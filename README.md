@@ -22,6 +22,7 @@ The below documented are the various assumptions made while implementing, which 
 - `DOB` given will **NOT** be later than current time
 - For Search, `has_children_by_age` takes in an age value which retrieves all members below the given age
 - `Name` field in family member should be unique.
+- For Search, specify `whole_household`=`true` to get only qualifying household response, family members list will be hidden.
 
 ## Accepted values for Household and FamilyMember
 
