@@ -18,7 +18,30 @@ func TestCreateFamilyMember(t *testing.T) {
 		expectedError     error
 	}{
 		{
-			msg: "FAILURE_CASE",
+			msg: "duplicate_id",
+			givenDatastore: &Datastore{
+				Members: map[int]model.FamilyMember{
+					1: {
+						ID:             1,
+						Name:           "Jackie",
+						Gender:         "M",
+						OccupationType: "Unemployed",
+						MaritalStatus:  "Married",
+						DOB:            validDOB,
+					},
+				},
+			},
+			givenFamilyMember: model.FamilyMember{
+				Name:           "Harry",
+				Gender:         "M",
+				OccupationType: "Unemployed",
+				MaritalStatus:  "Married",
+				DOB:            validDOB,
+			},
+			expectedError: ErrFamilyMemberDuplicateID,
+		},
+		{
+			msg: "duplicate_name",
 			givenDatastore: &Datastore{
 				Members: map[int]model.FamilyMember{
 					1: {
@@ -38,10 +61,10 @@ func TestCreateFamilyMember(t *testing.T) {
 				MaritalStatus:  "Married",
 				DOB:            validDOB,
 			},
-			expectedError: ErrFamilyMemberDuplicateID,
+			expectedError: ErrFamilyMemberDuplicateName,
 		},
 		{
-			msg:            "SUCCESS_CASE",
+			msg:            "success",
 			givenDatastore: NewDatastore(),
 			givenFamilyMember: model.FamilyMember{
 				Name:           "Jackie",

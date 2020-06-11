@@ -34,6 +34,14 @@ func (d *Datastore) Search(so model.SearchOperation) []model.Household {
 			continue
 		}
 
+		if so.HasCouple != nil && containsCouple(h.Members) != *so.HasCouple {
+			continue
+		}
+
+		if so.HasChildrenByAge != 0 && !containsChildrenByAge(so.HasChildrenByAge, h.Members) {
+			continue
+		}
+
 		for _, f := range h.Members {
 			if so.CompareAnnualIncome && !matchAnnualIncome(f.AnnualIncome, so) {
 				continue
@@ -54,6 +62,38 @@ func (d *Datastore) Search(so model.SearchOperation) []model.Household {
 	}
 
 	return result
+}
+
+// containsCouple loops the members slice and checks if both couple lives in same household
+func containsCouple(members []model.FamilyMember) bool {
+	spouseMap := make(map[string]string)
+	for _, f := range members {
+		if f.Spouse != "" {
+			if _, exists := spouseMap[f.Name]; exists {
+				return true
+			}
+			// value is only placeholder value
+			spouseMap[f.Name] = ""
+
+			if _, exists := spouseMap[f.Spouse]; exists {
+				return true
+			}
+			// add both member and spouse to map
+			spouseMap[f.Spouse] = ""
+		}
+	}
+
+	return false
+}
+
+// containsChildrenByAge loops the members slice and checks if any member is below the given age
+func containsChildrenByAge(val int, members []model.FamilyMember) bool {
+	for _, f := range members {
+		if f.Age() < val {
+			return true
+		}
+	}
+	return false
 }
 
 func matchHouseholdIncome(val int, so model.SearchOperation) bool {

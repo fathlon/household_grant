@@ -12,4 +12,6 @@ var (
 
 	// ErrFamilyMemberDuplicateID occurs when the index is already used
 	ErrFamilyMemberDuplicateID = errors.New("duplicate family member index")
+	// ErrFamilyMemberDuplicateName occurs when the name is duplicate
+	ErrFamilyMemberDuplicateName = errors.New("duplicate name")
 )

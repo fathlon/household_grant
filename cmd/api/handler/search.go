@@ -32,6 +32,11 @@ func mapSearchOperation(params url.Values) (model.SearchOperation, error) {
 		for i := 0; i < rt.NumField(); i++ {
 			structField := rt.Field(i)
 			jsonFullTag := structField.Tag.Get("json")
+			// skip fields with no json tag
+			if jsonFullTag == "" {
+				continue
+			}
+
 			// extract only the tag name value
 			jsonTag := strings.Split(jsonFullTag, ",")[0]
 
@@ -49,12 +54,12 @@ func mapSearchOperation(params url.Values) (model.SearchOperation, error) {
 						return model.SearchOperation{}, errors.New("invalid type of value")
 					}
 					currentField.SetInt(val)
-				case bool:
+				case *bool:
 					val, err := strconv.ParseBool(currentValStr)
 					if err != nil {
 						return model.SearchOperation{}, errors.New("invalid type of value")
 					}
-					currentField.SetBool(val)
+					currentField.Set(reflect.ValueOf(&val))
 				default:
 					return model.SearchOperation{}, errors.New("not implemented, type not supported")
 				}

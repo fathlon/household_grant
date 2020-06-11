@@ -91,6 +91,8 @@ var (
 )
 
 func TestSearch(t *testing.T) {
+	truePointer, falsePointer := true, false
+
 	testCases := []struct {
 		givenSearchOperation model.SearchOperation
 		expected             []model.Household
@@ -137,6 +139,25 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
+			givenSearchOperation: model.SearchOperation{
+				HasCouple:        &truePointer,
+				HasChildrenByAge: 16,
+			},
+			expected: []model.Household{h1},
+		},
+		{
+			givenSearchOperation: model.SearchOperation{
+				HasCouple: &falsePointer,
+			},
+			expected: []model.Household{h2, h3},
+		},
+		{
+			givenSearchOperation: model.SearchOperation{
+				HasChildrenByAge: 16,
+			},
+			expected: []model.Household{h1, h3},
+		},
+		{
 			givenSearchOperation: model.SearchOperation{},
 			expected:             []model.Household{},
 		},
@@ -152,6 +173,7 @@ func TestSearch(t *testing.T) {
 					1: h1,
 					2: h2,
 					3: h3,
+					4: h4,
 				},
 			}
 
@@ -160,6 +182,65 @@ func TestSearch(t *testing.T) {
 
 			// Then:
 			require.ElementsMatch(t, tc.expected, result)
+		})
+	}
+}
+
+func TestContainsCouple(t *testing.T) {
+	testCases := []struct {
+		givenMembers []model.FamilyMember
+		expected     bool
+	}{
+		{
+			givenMembers: []model.FamilyMember{hb1, ch1, ch3, eld1, wf1, sm1},
+			expected:     true,
+		},
+		{
+			givenMembers: []model.FamilyMember{eld1, hb1, sm1, ch2, ch3},
+			expected:     false,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(strconv.FormatBool(tc.expected), func(t *testing.T) {
+			t.Parallel()
+			// When:
+			result := containsCouple(tc.givenMembers)
+
+			// Then:
+			require.Equal(t, tc.expected, result)
+		})
+	}
+}
+
+func TestContainsChildrenByAge(t *testing.T) {
+	testCases := []struct {
+		givenMembers     []model.FamilyMember
+		givenChildrenAge int
+		expected         bool
+	}{
+		{
+			givenMembers:     []model.FamilyMember{hb1, ch1, ch3, eld1},
+			givenChildrenAge: 15,
+			expected:         true,
+		},
+		{
+			givenMembers:     []model.FamilyMember{wf1, sm1, ch1},
+			givenChildrenAge: 15,
+			expected:         false,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(strconv.FormatBool(tc.expected), func(t *testing.T) {
+			t.Parallel()
+			// When:
+			result := containsChildrenByAge(tc.givenChildrenAge, tc.givenMembers)
+
+			// Then:
+			require.Equal(t, tc.expected, result)
 		})
 	}
 }

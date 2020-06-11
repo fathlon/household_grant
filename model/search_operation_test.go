@@ -8,6 +8,7 @@ import (
 )
 
 func TestValidate(t *testing.T) {
+	truePointer := true
 	testCases := []struct {
 		msg      string
 		given    SearchOperation
@@ -52,7 +53,7 @@ func TestValidate(t *testing.T) {
 				AnnualIncomeGT:  100000,
 				HouseholdSizeGT: 3,
 				HouseholdIncome: 150000,
-				HasCouple:       true,
+				HasCouple:       &truePointer,
 			},
 			expected: nil,
 		},

@@ -11,8 +11,8 @@ type SearchOperation struct {
 	HouseholdSizeLT int `json:"household_size_lt"`
 	HouseholdSize   int `json:"household_size"`
 
-	HasCouple   bool `json:"has_couple"`
-	HasChildren bool `json:"has_children"`
+	HasCouple        *bool `json:"has_couple"`
+	HasChildrenByAge int   `json:"has_children_by_age"`
 
 	// FamilyMember conditions
 	AnnualIncomeGT int `json:"annual_income_gt"`

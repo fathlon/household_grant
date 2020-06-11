@@ -173,7 +173,7 @@ func TestAddMember_Error(t *testing.T) {
 			},
 			givenHouseholdID: 1,
 			givenMember: model.FamilyMember{
-				Name:           "Jackie",
+				Name:           "Harry",
 				Gender:         "M",
 				OccupationType: "Unemployed",
 				MaritalStatus:  "Married",

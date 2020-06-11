@@ -9,6 +9,7 @@ import (
 )
 
 func TestMapSearchOperation(t *testing.T) {
+	truePointer := true
 	testCases := []struct {
 		msg            string
 		givenParams    map[string][]string
@@ -26,7 +27,7 @@ func TestMapSearchOperation(t *testing.T) {
 			expectedResult: model.SearchOperation{
 				AnnualIncomeGT: 51000,
 				HouseholdSize:  3,
-				HasCouple:      true,
+				HasCouple:      &truePointer,
 			},
 		},
 		{
@@ -53,7 +54,7 @@ func TestMapSearchOperation(t *testing.T) {
 		{
 			msg: "wrong_field_value_bool",
 			givenParams: map[string][]string{
-				"has_children": {"wrong_type"},
+				"has_couple": {"wrong_type"},
 			},
 			expectedError:  errors.New("invalid type of value"),
 			expectedResult: model.SearchOperation{},
@@ -61,12 +62,14 @@ func TestMapSearchOperation(t *testing.T) {
 		{
 			msg: "skip_key_with_no_value",
 			givenParams: map[string][]string{
-				"household_income": {"230000"},
-				"household_size":   {},
+				"household_income":    {"230000"},
+				"household_size":      {},
+				"has_children_by_age": {"16"},
 			},
 			expectedError: nil,
 			expectedResult: model.SearchOperation{
-				HouseholdIncome: 230000,
+				HouseholdIncome:  230000,
+				HasChildrenByAge: 16,
 			},
 		},
 	}

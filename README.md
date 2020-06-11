@@ -18,8 +18,10 @@ The below documented are the various assumptions made while implementing, which 
 - Search with duplicate key, only the first value will be taken.
 - For Search, conflicting comparison is **NOT** allowed. E.g HouseholdIncome and HouseholdIncomeLT or HouseholdIncomeGT
 - Int value used does not exceed int32 MAX_INT value
-- Zero value of type **NOT** allowed for search
+- Zero value of type **NOT** allowed for search, except for `bool` type fields
 - `DOB` given will **NOT** be later than current time
+- For Search, `has_children_by_age` takes in an age value which retrieves all members below the given age
+- `Name` field in family member should be unique.
 
 ## Accepted values for Household and FamilyMember
 
@@ -92,7 +94,7 @@ The accepted values are **case-sensitive**
   - household_size_lt
   - household_size
   - has_couple
-  - has_children
+  - has_children_by_age
   - annual_income_gt
   - annual_income_lt
   - annual_income
