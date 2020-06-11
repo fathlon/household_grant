@@ -32,9 +32,25 @@ func (f *FamilyMember) Validate() error {
 		return ErrFamilyMemberMaritalStatusInvalid
 	}
 
-	if f.DOB.IsZero() {
+	now := time.Now()
+	if f.DOB.IsZero() || f.DOB.Local().After(now) {
 		return ErrFamilyMemberDOBInvalid
 	}
 
 	return nil
+}
+
+// Age returns current age based on DOB
+func (f *FamilyMember) Age() int {
+	now := time.Now()
+	dobYear := f.DOB.Local().Year()
+
+	currentAge := now.Year() - dobYear
+	monthChecker := time.Date(dobYear, now.Month(), now.Day(), now.Hour(), now.Minute(), now.Second(), now.Nanosecond(), time.Local)
+
+	if monthChecker.Before(f.DOB.Local()) {
+		currentAge--
+	}
+
+	return currentAge
 }

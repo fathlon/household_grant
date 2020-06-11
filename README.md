@@ -16,6 +16,10 @@ The below documented are the various assumptions made while implementing, which 
 - All comparison are **case-sensitive**.
 - Search without any valid key and value will return empty result.
 - Search with duplicate key, only the first value will be taken.
+- For Search, conflicting comparison is **NOT** allowed. E.g HouseholdIncome and HouseholdIncomeLT or HouseholdIncomeGT
+- Int value used does not exceed int32 MAX_INT value
+- Zero value of type **NOT** allowed for search
+- `DOB` given will **NOT** be later than current time
 
 ## Accepted values for Household and FamilyMember
 

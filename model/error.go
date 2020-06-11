@@ -16,4 +16,7 @@ var (
 	ErrFamilyMemberMaritalStatusInvalid = errors.New("invalid marital status")
 	// ErrFamilyMemberDOBInvalid occurs when the DOB is invalid
 	ErrFamilyMemberDOBInvalid = errors.New("invalid DOB")
+
+	// ErrSearchConflictingComparison occurs when eq and (gt or lt) is both specified
+	ErrSearchConflictingComparison = errors.New("conflicting comparison for search")
 )

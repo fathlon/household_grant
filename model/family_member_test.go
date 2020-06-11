@@ -89,6 +89,16 @@ func TestValidateFamilyMember(t *testing.T) {
 			},
 			ErrFamilyMemberDOBInvalid,
 		},
+		{
+			FamilyMember{
+				Name:           "Jackie",
+				Gender:         "F",
+				OccupationType: "Student",
+				MaritalStatus:  "Single",
+				DOB:            time.Now().AddDate(0, 0, 1),
+			},
+			ErrFamilyMemberDOBInvalid,
+		},
 	}
 
 	for i, tc := range testCases {
@@ -98,6 +108,39 @@ func TestValidateFamilyMember(t *testing.T) {
 
 			// When:
 			result := tc.given.Validate()
+
+			// Then:
+			require.Equal(t, tc.expected, result)
+		})
+	}
+}
+
+func TestAge(t *testing.T) {
+	now := time.Now()
+	testCases := []struct {
+		given    FamilyMember
+		expected int
+	}{
+		{
+			given: FamilyMember{
+				DOB: now.AddDate(-25, 0, 0),
+			},
+			expected: 25,
+		},
+		{
+			given: FamilyMember{
+				DOB: now.AddDate(-25, 1, 0),
+			},
+			expected: 24,
+		},
+	}
+
+	for i, tc := range testCases {
+		tc := tc
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			t.Parallel()
+			// When:
+			result := tc.given.Age()
 
 			// Then:
 			require.Equal(t, tc.expected, result)
