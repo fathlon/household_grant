@@ -388,5 +388,96 @@ func TestRetrieveHousehold_Error(t *testing.T) {
 			require.Contains(t, w.Body.String(), tc.expectedMsg)
 		})
 	}
+}
 
+func TestDeleteHousehold(t *testing.T) {
+	// Prep fixtures:
+	h1 := model.Household{
+		ID:   1,
+		Type: "Landed",
+		Members: []model.FamilyMember{
+			{ID: 1, Name: "Jack"},
+			{ID: 2, Name: "Beanstalk"},
+		},
+	}
+	h2 := model.Household{
+		ID:   2,
+		Type: "HDB",
+		Members: []model.FamilyMember{
+			{ID: 1, Name: "Cinderella"},
+		},
+	}
+
+	ds := db.Datastore{
+		Households: map[int]model.Household{
+			1: h1,
+			2: h2,
+		},
+	}
+
+	// Given:
+	oldDs := datastore
+	datastore = &ds
+	defer func() { datastore = oldDs }()
+
+	w := httptest.NewRecorder()
+	r, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/households/%v", h1.ID), nil)
+	require.NoError(t, err)
+
+	router := mux.NewRouter()
+
+	// When:
+	router.HandleFunc("/households/{id}", DeleteHousehold)
+	router.ServeHTTP(w, r)
+
+	// Then:
+	require.Equal(t, http.StatusOK, w.Code)
+	require.Equal(t, "application/json", w.Header().Get("Content-Type"))
+
+	var result model.Household
+	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &result))
+	require.EqualValues(t, h1, result)
+}
+
+func TestDeleteHousehold_Error(t *testing.T) {
+	testCases := []struct {
+		msg              string
+		givenHouseholdID string
+		expectedCode     int
+		expectedMsg      string
+	}{
+		{
+			msg:              "invalid_path_variable",
+			givenHouseholdID: "one",
+			expectedCode:     http.StatusBadRequest,
+			expectedMsg:      "invalid path variable",
+		},
+		{
+			msg:              "household_not_found",
+			givenHouseholdID: "99",
+			expectedCode:     http.StatusBadRequest,
+			expectedMsg:      "household not found",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			t.Parallel()
+			// Given:
+			w := httptest.NewRecorder()
+			r, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("/households/%v", tc.givenHouseholdID), nil)
+			require.NoError(t, err)
+
+			router := mux.NewRouter()
+
+			// When:
+			router.HandleFunc("/households/{id}", DeleteHousehold)
+			router.ServeHTTP(w, r)
+
+			// Then:
+			require.Equal(t, tc.expectedCode, w.Code)
+			require.Contains(t, w.Body.String(), tc.expectedMsg)
+		})
+	}
 }

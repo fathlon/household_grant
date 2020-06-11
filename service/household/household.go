@@ -57,3 +57,13 @@ func Retrieve(ds *db.Datastore, householdID int) (model.Household, error) {
 
 	return result, nil
 }
+
+// Delete deletes the given household by id and returns the deleted household
+func Delete(ds *db.Datastore, householdID int) (model.Household, error) {
+	result, err := ds.DeleteHousehold(householdID)
+	if err != nil {
+		return model.Household{}, service.NewValidationError(err)
+	}
+
+	return result, nil
+}

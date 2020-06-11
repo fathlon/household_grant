@@ -43,3 +43,15 @@ func (d *Datastore) UpdateHousehold(h model.Household) error {
 
 	return nil
 }
+
+// DeleteHousehold deletes the given household by id and returns the deleted household
+func (d *Datastore) DeleteHousehold(id int) (model.Household, error) {
+	result, err := d.RetrieveHousehold(id)
+	if err != nil {
+		return model.Household{}, err
+	}
+
+	delete(d.Households, id)
+
+	return result, nil
+}

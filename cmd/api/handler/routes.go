@@ -16,6 +16,7 @@ func Routes() *mux.Router {
 	hr.HandleFunc("", CreateHousehold).Methods(http.MethodPost)
 	hr.HandleFunc("", RetrieveHouseholds).Methods(http.MethodGet)
 	hr.HandleFunc("/{id}", RetrieveHousehold).Methods(http.MethodGet)
+	hr.HandleFunc("/{id}", DeleteHousehold).Methods(http.MethodDelete)
 	hr.HandleFunc("/{id}/familymember", AddFamilyMember).Methods(http.MethodPost)
 
 	r.HandleFunc("/search", Search).Methods(http.MethodGet)

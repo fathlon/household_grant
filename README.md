@@ -116,3 +116,7 @@ The accepted values are **case-sensitive**
 
   /search?age_gt=50
   ```
+
+#### Delete Household
+
+- `DELETE` to `/households/{id}`

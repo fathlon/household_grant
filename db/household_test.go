@@ -221,3 +221,68 @@ func TestUpdateHousehold(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteHousehold(t *testing.T) {
+	h1 := model.Household{
+		ID:   1,
+		Type: "Landed",
+		Members: []model.FamilyMember{
+			{ID: 1, Name: "Jack"},
+			{ID: 2, Name: "Beanstalk"},
+		},
+	}
+	h2 := model.Household{
+		ID:   2,
+		Type: "HDB",
+		Members: []model.FamilyMember{
+			{ID: 1, Name: "Cinderella"},
+		},
+	}
+
+	testCases := []struct {
+		msg              string
+		givenDatastore   *Datastore
+		givenHouseholdID int
+		expectedError    error
+		expected         model.Household
+	}{
+		{
+			msg:              "not_found",
+			givenDatastore:   NewDatastore(),
+			givenHouseholdID: 1,
+			expectedError:    ErrHouseholdNotFound,
+			expected:         model.Household{},
+		},
+		{
+			msg: "success",
+			givenDatastore: &Datastore{
+				Households: map[int]model.Household{
+					1: h1,
+					2: h2,
+				},
+			},
+			givenHouseholdID: h1.ID,
+			expectedError:    nil,
+			expected:         h1,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.msg, func(t *testing.T) {
+			t.Parallel()
+			// When:
+			result, err := tc.givenDatastore.DeleteHousehold(tc.givenHouseholdID)
+
+			// Then:
+			require.Equal(t, tc.expectedError, err)
+
+			if tc.expectedError == nil {
+				require.EqualValues(t, tc.expected, result)
+
+				_, exists := tc.givenDatastore.Households[tc.givenHouseholdID]
+				require.False(t, exists)
+			}
+		})
+	}
+}
